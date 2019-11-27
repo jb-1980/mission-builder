@@ -14,8 +14,8 @@ export const Mission = ({ missionCode }) => {
     variables: { code: missionCode },
   })
 
-  if (error) return <div>Error loading mission</div>
-  if (loading) return <div>Loading mission from server</div>
+  if (error) return <Error message="Error loading mission" />
+  if (loading) return <Loading message="Loading mission from server" />
 
   const { mission } = data
 
@@ -78,6 +78,11 @@ const MissionDashboard = ({ initialMission }) => {
   }
   const [mission, dispatch] = React.useReducer(reducer, injectedMission)
 
+  React.useEffect(() => {
+    if (mission.code !== injectedMission.code) {
+      dispatch({ type: "SET_MISSION", mission: injectedMission })
+    }
+  }, [mission, injectedMission])
   return (
     <div className="dashboard-container">
       <div className="mission-container">
@@ -251,6 +256,10 @@ const reducer = (state, action) => {
         })),
       }
     }
+
+    case "SET_MISSION":
+      return action.mission
+
     default:
       return state
   }
