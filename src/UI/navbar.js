@@ -133,7 +133,7 @@ export const Navbar = ({ menuOpen, setMenuOpen }) => {
         `}
       >
         <Link style={{ textDecoration: "none", color: "#fff" }} to="/">
-          Mission Builder
+          Mission Control
         </Link>
       </div>
 

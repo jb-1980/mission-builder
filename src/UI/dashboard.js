@@ -46,15 +46,16 @@ export const Dashboard = props => {
             background-color: ${colors.primary};
             overflow: hidden;
             width: ${sidebarOpen ? "400px" : "0px"};
-            transition: width 0.5s;
+            transition: all 0.5s;
           `}
         >
           <div
             className={css`
               width: 400px;
               opacity: ${sidebarOpen ? 100 : 0};
-              transition: opacity 0.45s;
+              transition: opacity 1.5s;
               overflow: hidden;
+              position: ${sidebarOpen ? "fixed" : "relative"};
             `}
           >
             <div
@@ -100,7 +101,7 @@ export const Dashboard = props => {
         <div
           className={css`
             position: relative;
-            width: ${sidebarOpen ? "calc(100vw - 400px)" : "100vw"};
+            width: ${sidebarOpen ? "calc(100% - 400px)" : "100%"};
             transition: width 0.5s;
           `}
         >

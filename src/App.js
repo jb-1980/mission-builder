@@ -37,7 +37,7 @@ function App() {
             justify-content: space-evenly;
           `}
         >
-          <h1>Mission Builder</h1>
+          <h1>Mission Control</h1>
           <a
             className={css`
               ${btnPrimary};

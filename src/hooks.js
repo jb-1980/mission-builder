@@ -17,3 +17,15 @@ export const useOutsideClick = (ref, clickHandler) => {
     }
   })
 }
+
+let lastURL
+
+export function useScrollToTop() {
+  const ref = React.useRef()
+  const { current } = ref
+  if (current && document.URL !== lastURL) {
+    current.scrollIntoView({ alignToTop: true })
+    lastURL = document.URL
+  }
+  return ref
+}

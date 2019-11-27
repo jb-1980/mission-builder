@@ -3,7 +3,7 @@ import uuidv4 from "uuid/v4"
 import { css } from "emotion"
 import { useMission } from "../apollo/queries"
 import { useUser } from "../contexts/user-context"
-
+import { useScrollToTop } from "../hooks"
 import { ProgressDisplay } from "./progress-display"
 import { Workspace } from "./workspace"
 import { Error } from "./error"
@@ -84,7 +84,7 @@ const MissionDashboard = ({ initialMission }) => {
     }
   }, [mission, injectedMission])
   return (
-    <div className="dashboard-container">
+    <div ref={useScrollToTop()} className="dashboard-container">
       <div className="mission-container">
         <div className="progress-container">
           <div className="mission-title">{mission.title}</div>
