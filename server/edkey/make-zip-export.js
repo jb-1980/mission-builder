@@ -36,6 +36,8 @@ const getManyExercises = async (kapi, exercises, accumulator = []) => {
   return [...accumulator, ...res]
 }
 
+const KHAN_URL = "https://www.khanacademy.org/"
+
 exports.make_backup = async (kapi, mission) => {
   //     //
   //     // mission object should look like {
@@ -103,13 +105,13 @@ exports.make_backup = async (kapi, mission) => {
     sect += 1
 
     topic.tasks.forEach(task => {
-      const taskData = pageDataRef[task.name]
-      if (taskData === undefined) return
+      let taskData = pageDataRef[task.name] || {}
 
       mission_backup.activities.push({
         modid,
         sectionid: sect,
         title: task.title,
+        exportid: task.exportid || task.name,
         lessonid,
         modid,
         ctxid,
@@ -121,6 +123,9 @@ exports.make_backup = async (kapi, mission) => {
         gradeitem,
         idnumber: task.name,
         sectionid: sect,
+        ka_url: task.url ? KHAN_URL + task.url : taskData.ka_url,
+        related_videos: taskData.related_videos || [],
+        kind: task.kind,
         ...taskData,
       })
       lessonid += 1

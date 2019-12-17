@@ -59,6 +59,59 @@ router.get("/get/data", async (req, res, next) => {
   res.status(200).json(data)
 })
 
+router.get("/get/assignment_data/:courseId", async (req, res, next) => {
+  const { courseId } = req.params
+  const { tokens } = req.cookies
+  if (tokens) {
+    const authTokens = jwt.verify(tokens, process.env.JWT_SECRET)
+    const kapi = new KhanAPIWrapper(
+      process.env.KHAN_CONSUMER_KEY,
+      process.env.KHAN_CONSUMER_SECRET,
+      authTokens.token,
+      authTokens.secret
+    )
+    const { data } = await kapi.graphqlProgressByStudent(courseId)
+    if (data === null) {
+      res.sendStatus(400)
+      return
+    }
+
+    const { assignments } = data.coach.studentList.assignmentsPage
+
+    // parsing data to look like mission structure
+    const mission = assignments.reduce(
+      (acc, a) => {
+        const assignment = a.contents[0]
+        acc.progressInfo.push({
+          exportid: a.id,
+          id: assignment.id,
+          kind: assignment.kind,
+          name: assignment.defaultUrlPath.split("/").pop(),
+          translatedDisplayName: assignment.translatedTitle,
+          url: assignment.defaultUrlPath,
+        })
+
+        acc.topicBreakdown[0].exerciseIds.push(assignment.id)
+
+        return acc
+      },
+      {
+        progressInfo: [],
+        translatedTitle: "Edit Me",
+        topicBreakdown: [
+          {
+            translatedTitle: "Topic 1",
+            exerciseIds: [],
+          },
+        ],
+      }
+    )
+    res.status(200).json(mission)
+  } else {
+    res.sendStatus(401)
+  }
+})
+
 router.put("/update/data", async (req, res) => {
   const { tokens } = req.cookies
 

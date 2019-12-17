@@ -22,9 +22,12 @@ export const MISSION = gql`
         id
         title
         tasks {
+          exportid
           kaid
+          kind
           title
           name
+          url
         }
       }
     }

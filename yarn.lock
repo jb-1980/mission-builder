@@ -6088,8 +6088,8 @@ kareem@2.3.1:
   resolved "https://registry.yarnpkg.com/kareem/-/kareem-2.3.1.tgz#def12d9c941017fabfb00f873af95e9c99e1be87"
 
 khan-api-wrapper@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/khan-api-wrapper/-/khan-api-wrapper-1.1.0.tgz#94f7dd00940197dd7da3f7e30823a4783c67caa8"
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/khan-api-wrapper/-/khan-api-wrapper-1.2.0.tgz#b14d93cb69592528e06ed91c31cb93aacb1208ef"
   dependencies:
     axios "^0.19.0"
     oauth-1.0a "^2.2.6"

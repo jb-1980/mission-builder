@@ -12,9 +12,12 @@ export const useSaveMission = options =>
           topics {
             title
             tasks {
+              exportid
               kaid
+              kind
               title
               name
+              url
             }
           }
         }

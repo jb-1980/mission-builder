@@ -11,7 +11,7 @@ import { AtomSpinner } from "./atom"
 import { Editable } from "./editable-input"
 import { useData } from "../contexts/data-context"
 import { useUser } from "../contexts/user-context"
-import { MissionSelector } from "./mission-selector"
+import { MissionSelector, AssignmentSelector } from "./mission-selector"
 
 const cleanMission = dirtyMission => ({
   code: dirtyMission.code,
@@ -21,9 +21,12 @@ const cleanMission = dirtyMission => ({
     id: topic.id,
     title: topic.title,
     tasks: topic.tasks.map(task => ({
+      exportid: task.exportid,
       kaid: task.kaid,
+      kind: task.kind,
       name: task.name,
       title: task.title,
+      url: task.url,
     })),
   })),
 })
@@ -52,20 +55,38 @@ export const Workspace = ({ mission, dispatch }) => {
         variables: { kaid: user.kaid },
       },
     ],
+    onCompleted: () => dispatch({ type: "SAVE_MISSION" }),
   })
 
   return (
     <div className="dashboard-task-list-container">
       <div className="editor-task-list">
         <div style={{ textAlign: "right" }}>
-          <a
-            className={btnPrimary}
-            style={{ textDecoration: "none" }}
-            href={`/api/get/mission_export/${mission.code}`}
+          {mission.editing ? (
+            <ButtonPrimary
+              disabled
+              style={{ opacity: 0.5, cursor: "not-allowed" }}
+            >
+              Export
+            </ButtonPrimary>
+          ) : (
+            <a
+              className={btnPrimary}
+              style={{ textDecoration: "none" }}
+              href={`/api/get/mission_export/${mission.code}`}
+            >
+              Export
+            </a>
+          )}
+          <ButtonPrimary
+            disabled={!mission.editing}
+            style={{
+              marginLeft: 3,
+              opacity: mission.editing ? 1 : 0.5,
+              cursor: mission.editing ? "pointer" : "not-allowed",
+            }}
+            onClick={saveMission}
           >
-            Export
-          </a>
-          <ButtonPrimary style={{ marginLeft: 3 }} onClick={saveMission}>
             {isSaving ? (
               <AtomSpinner
                 size="20px"
@@ -106,6 +127,7 @@ export const Workspace = ({ mission, dispatch }) => {
                 >
                   {error ? "Error updating! Try again?" : "Update Data Cache"}
                 </ButtonPrimary>
+                <AssignmentSelector dispatch={dispatch} />
               </>
             )}
           </div>

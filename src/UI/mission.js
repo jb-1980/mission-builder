@@ -19,7 +19,7 @@ export const Mission = ({ missionCode }) => {
 
   const { mission } = data
 
-  return <MissionDashboard initialMission={mission} />
+  return <MissionDashboard initialMission={{ editing: false, ...mission }} />
 }
 
 export const CreateMission = () => {
@@ -31,6 +31,7 @@ export const CreateMission = () => {
         owner: user.kaid,
         title: "Edit mission title",
         topics: [],
+        editing: true,
       }}
     />
   )
@@ -51,7 +52,12 @@ export const CloneMission = ({ missionCode }) => {
     <Error message={`No mission found for code ${missionCode}`} />
   ) : (
     <MissionDashboard
-      initialMission={{ ...mission, code: "create", owner: user.kaid }}
+      initialMission={{
+        ...mission,
+        code: "create",
+        owner: user.kaid,
+        editing: true,
+      }}
     />
   )
 }
@@ -110,7 +116,7 @@ const MissionDashboard = ({ initialMission }) => {
 const reducer = (state, action) => {
   switch (action.type) {
     case "UPDATE_TITLE":
-      return { ...state, title: action.title }
+      return { ...state, title: action.title, editing: true }
 
     case "UPDATE_TOPIC_TITLE":
       return {
@@ -121,6 +127,7 @@ const reducer = (state, action) => {
           }
           return { ...t }
         }),
+        editing: true,
       }
 
     case "CREATE_TOPIC":
@@ -134,10 +141,15 @@ const reducer = (state, action) => {
             tasks: [],
           },
         ],
+        editing: true,
       }
 
     case "DELETE_TOPIC":
-      return { ...state, topics: state.topics.filter(t => t.id !== action.id) }
+      return {
+        ...state,
+        topics: state.topics.filter(t => t.id !== action.id),
+        editing: true,
+      }
 
     case "ATTACH_TASK_TO_TOPIC":
       return {
@@ -159,6 +171,7 @@ const reducer = (state, action) => {
           }
           return { ...topic }
         }),
+        editing: true,
       }
 
     case "DELETE_TASK":
@@ -173,6 +186,7 @@ const reducer = (state, action) => {
           }
           return { ...topic }
         }),
+        editing: true,
       }
 
     case "MOVE_TASK": {
@@ -231,16 +245,17 @@ const reducer = (state, action) => {
 
             return topic
           }),
+          editing: true,
         }
       }
     }
 
     case "SET_MISSION_FROM_TEMPLATE": {
       const { mission } = action
-      const tasks = mission.progressInfo.reduce(
-        (acc, task) => ({ ...acc, [task.id]: task }),
-        {}
-      )
+      const tasks = mission.progressInfo.reduce((acc, task) => {
+        acc[task.id] = task
+        return acc
+      }, {})
       return {
         ...state,
         title: mission.translatedTitle,
@@ -249,16 +264,23 @@ const reducer = (state, action) => {
           title: topic.translatedTitle,
           tasks: topic.exerciseIds.map(task => ({
             id: uuidv4(),
+            exportid: tasks[task].exportid,
             kaid: task,
+            kind: tasks[task].kind,
             name: tasks[task].name,
             title: tasks[task].translatedDisplayName,
+            url: tasks[task].url,
           })),
         })),
+        editing: true,
       }
     }
 
     case "SET_MISSION":
       return action.mission
+
+    case "SAVE_MISSION":
+      return { ...state, editing: false }
 
     default:
       return state

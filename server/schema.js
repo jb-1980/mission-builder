@@ -8,9 +8,12 @@ exports.typeDefs = gql`
   }
 
   type Task {
+    exportid: String
     kaid: String
-    title: String
+    kind: String
     name: String
+    title: String
+    url: String
   }
 
   type Topic {
@@ -27,9 +30,12 @@ exports.typeDefs = gql`
   }
 
   input TaskInput {
+    exportid: String
     kaid: String
-    title: String
+    kind: String
     name: String
+    title: String
+    url: String
   }
 
   input TopicInput {
