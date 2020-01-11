@@ -7,7 +7,7 @@ const { promisify } = require("util")
 const readAsync = promisify(fs.readFile)
 const writeAsync = promisify(fs.writeFile)
 
-const { make_backup } = require("./edkey/make-zip-export")
+const { make_backup } = require("./mission/make-zip-export")
 const { Mission } = require("./models")
 
 router.get("/user/verify", async (req, res) => {
@@ -141,20 +141,22 @@ router.get("/get/mission_export/:code", async (req, res) => {
 
   if (tokens) {
     const authTokens = jwt.verify(tokens, process.env.JWT_SECRET)
+
+    const { code } = req.params
+    const mission = await Mission.findOne({ code })
+
+    // This is specific to my app. If extending for your own use you will
+    // want to change the content of the zip file to export
     const kapi = new KhanAPIWrapper(
       process.env.KHAN_CONSUMER_KEY,
       process.env.KHAN_CONSUMER_SECRET,
       authTokens.token,
       authTokens.secret
     )
-
-    var zip = Archiver("zip")
-
-    // Send the file to the page output.
-    zip.pipe(res)
-    const { code } = req.params
-    const mission = await Mission.findOne({ code })
     const xml_files = await make_backup(kapi, mission)
+
+    const zip = Archiver("zip")
+    zip.pipe(res)
     xml_files.forEach(f => zip.append(f.xml, { name: f.name }))
     zip.finalize()
     res.writeHead(200, {
