@@ -20,7 +20,7 @@ router.get("/user/verify", async (req, res) => {
       authTokens.token,
       authTokens.secret
     )
-    const user = await kapi.user()
+    const user = await kapi.fetchResource("/api/internal/user", true)
     res.status(200).json(user)
   } else {
     res.sendStatus(401)
