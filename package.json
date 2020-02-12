@@ -56,5 +56,8 @@
   "prettier": {
     "semi": false,
     "trailingComma": "es5"
+  },
+  "engines": {
+    "node": "13.7.0"
   }
 }
