@@ -20,8 +20,12 @@ router.get("/user/verify", async (req, res) => {
       authTokens.token,
       authTokens.secret
     )
-    const user = await kapi.fetchResource("/api/internal/user", true)
-    res.status(200).json(user)
+    try {
+      const user = await kapi.fetchResource("/api/internal/user", true)
+      res.status(200).json(user)
+    } catch (err) {
+      res.sendStatus(err.response.status)
+    }
   } else {
     res.sendStatus(401)
   }
@@ -76,7 +80,9 @@ router.get("/get/assignment_data/:courseId", async (req, res, next) => {
       return
     }
 
-    const { assignments } = data.coach.studentList.assignmentsPage
+    console.log({ data })
+
+    const { assignments } = data.coach.studentList?.assignmentsPage
 
     // parsing data to look like mission structure
     const mission = assignments.reduce(
