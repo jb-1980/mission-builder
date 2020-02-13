@@ -1,4 +1,26 @@
-const baseUrl = "https://www.khanacademy.org/embed_video?v="
+const KHAN_URL = "https://www.khanacademy.org"
+const baseUrl = `${KHAN_URL}/embed_video?v=`
+
+const buttonLink = (url, label) => `
+  <a
+    style="
+      text-decoration:none;
+      color:white;
+      background-color:#1865f2;
+      padding:5px 10px;
+      border-radius:5px;
+      font-size:20px"
+    rel="noreferrer noopener"
+    href="${KHAN_URL + url}"
+  >
+    ${label}
+  </a>
+`
+
+const loginWarning = () => `<h4 style="color:red">
+** Rember to log into your Khan Academy account before doing the activity,
+   or you won't get credit **
+</h4>`
 
 const createVideoButton = (i, youtubeId) => `
   <button
@@ -16,8 +38,9 @@ const createVideoButton = (i, youtubeId) => `
   </button>
 `
 
-const createVideoString = videos =>
-  videos.length > 1
+const createVideoString = (videos, standAlone) => {
+  let str = standAlone ? loginWarning : ""
+  return str + videos.length > 1
     ? `
 <div>
   <iframe
@@ -43,10 +66,11 @@ ${videos.map((v, i) => createVideoButton(i + 1, v)).join("")}
   src="http://www.khanacademy.org/embed_video?v=${videos[0]}"
 ></iframe>
 </div>`
+}
 
-const createSkillString = skill => {
-  const videos = skill.related_videos.map(v => v.youtube_id)
-  const videosDescription = skill.image_url
+const createSkillString = content => {
+  const videos = content.related_videos.map(v => v.youtube_id)
+  const videosDescription = content.image_url
     ? videos.length > 0
       ? `<p>
   These videos will prepare you to solve problems similar
@@ -69,45 +93,24 @@ const createSkillString = skill => {
       </p>`
 
   return `<div style="font-family: Verdana">
-  <h2>${skill.title}</h2>
+  <h2>${content.title}</h2>
   ${
-    skill.image_url
+    content.image_url
       ? `<div style="text-align: center;">
-    <img src="${skill.image_url}" alt="${skill.display_name}"/>
+    <img src="${content.image_url}" alt="${content.display_name}"/>
   </div>`
       : ""
   }
   ${videosDescription}
   ${videos.length > 0 ? createVideoString(videos) : ""}
   <div style="margin: auto;text-align:center;">
-    <a
-      href="${skill.ka_url}"
-      target="_blank"
-      rel="noopener noreferrer"
-      style="color: white;
-        font-family: Verdana;
-        display: inline-block;
-        margin: auto;
-        width: 250px;
-        height: 50px;
-        line-height: 50px;
-        font-size: 16px;
-        background-color: rgb(8, 157, 227);
-        text-align: center;
-        border-radius: 8px;
-        border: thin solid white;
-        box-shadow: rgb(0, 0, 0) 0px 0px 3px;
-        cursor: pointer;
-        text-decoration: none;"
-    >
-      Take me to practice this skill
-    </a>
+    ${buttonLink(content.url, "Take me to practice this skill")}
   </div>
 </div>`
 }
 
-const createUnitTestString = unitTest => `
-<h1 style="text-align: center;">${unitTest.title}</h1>
+const createUnitTestString = content => `
+<h1 style="text-align: center;">${content.title}</h1>
 <h2>
   Before taking the unit test, please make sure that you have completed all of
   the exercises in this unit. You must pass the test with no outside help. If
@@ -135,33 +138,12 @@ const createUnitTestString = unitTest => `
 </h2>
 
 <div style="margin: auto; text-align: center;">
-  <a
-    href="${unitTest.ka_url}"
-    target="_blank"
-    rel="noopener noreferrer"
-    style="color: white;
-      font-family: Verdana;
-      display: inline-block;
-      margin: auto;
-      width: 250px;
-      height: 50px;
-      line-height: 50px;
-      font-size: 16px;
-      background-color: rgb(8, 157, 227);
-      text-align: center;
-      border-radius: 8px;
-      border: thin solid white;
-      box-shadow: rgb(0, 0, 0) 0px 0px 3px;
-      cursor: pointer;
-      text-decoration: none;"
-  >
-    Take me to the test
-  </a>
+  ${buttonLink(content.url, "Take me to the test")}
 </div>
 `
 
-const createTopicQuizString = topicQuiz => `
-<h1 style="text-align: center;">${topicQuiz.title}</h1>
+const createTopicQuizString = content => `
+<h1 style="text-align: center;">${content.title}</h1>
 <h2>
   This quiz will test your mastery of the topic's skills. If you don't get a
   passing score, I suggest you review the videos and skills that have a gold
@@ -188,44 +170,88 @@ const createTopicQuizString = topicQuiz => `
 </h2>
 
 <div style="margin: auto; text-align: center;">
-  <a
-    href="${topicQuiz.ka_url}"
-    target="_blank"
-    rel="noopener noreferrer"
-    style="color: white;
-      font-family: Verdana;
-      display: inline-block;
-      margin: auto;
-      width: 250px;
-      height: 50px;
-      line-height: 50px;
-      font-size: 16px;
-      background-color: rgb(8, 157, 227);
-      text-align: center;
-      border-radius: 8px;
-      border: thin solid white;
-      box-shadow: rgb(0, 0, 0) 0px 0px 3px;
-      cursor: pointer;
-      text-decoration: none;"
-  >
-    Take me to the quiz
-  </a>
+  ${buttonLink(content.url, "Take me to the quiz")}
+</div>
+`
+
+const createArticleString = content => `
+<div style="text-align:center">
+  <h2>
+    You will now read an article on Khan Academy.
+    Please click the button to access the article on Khan Academy.
+  </h2>
+  ${buttonLink(content.url, `Article -- ${content.title}`)}
+  <h4 style="color:red">
+    ** Rember to log into your Khan Academy account before doing the activity,
+       or you won't get credit **
+  </h4>
+</div>
+`
+
+const createChallengeString = content => `
+<div style="text-align:center">
+  <h2>
+    Now you will complete a coding challenge on Khan Academy. Just click the button
+    to access it.
+  </h2>
+  ${buttonLink(content.url, `Challenge -- ${content.title}`)}
+  <h4 style="color:red">
+    ** Rember to log into your Khan Academy account before doing the activity,
+       or you won't get credit **
+  </h4>
+</div>
+`
+
+const createProjectString = content => `
+<div style="text-align:center">
+  <h2>
+    Now you will complete a coding Project on Khan Academy. Just click the button
+    to access it.
+  </h2>
+  ${buttonLink(content.url, `Project -- ${content.title}`)}
+  <h4 style="color:red">
+    ** Rember to log into your Khan Academy account before doing the activity,
+       or you won't get credit **
+  </h4>
+</div>
+`
+
+const createTalkthroughString = content => `
+<div style="text-align:center">
+  <h2>Please click the button to complete the talkthrough activity on Khan Academy.</h2>
+  ${buttonLink(content.url, `Talkthrough -- ${content.title}`)}
+  <h4 style="color:red">
+    ** Rember to log into your Khan Academy account before doing the activity,
+       or you won't get credit **
+  </h4>
 </div>
 `
 
 const createContentString = content => {
   switch (content.kind) {
+    case "Article":
+      return createArticleString(content)
+
+    case "Challenge":
+      return createChallengeString(content)
+
     case "Exercise":
       return createSkillString(content)
 
-    case "Video":
-      return createVideoString([content])
+    case "Project":
+      return createProjectString(content)
+
+    case "Talkthrough":
+      return createTalkthroughString(content)
 
     case "TopicQuiz":
       return createTopicQuizString(content)
 
     case "TopicUnitTest":
       return createUnitTestString(content)
+
+    case "Video":
+      return createVideoString(content.related_videos, true)
 
     default:
       return createSkillString(content)

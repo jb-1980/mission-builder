@@ -149,6 +149,7 @@ exports.moodle_backupxml = params => {
 }
 
 exports.create_page_activity = page => {
+  console.log({ page })
   const content = createContentString(page)
   const page_xml = jsonxml(
     [

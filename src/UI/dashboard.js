@@ -76,7 +76,7 @@ export const Dashboard = props => {
               </button>
             </div>
             {missions.map(m => (
-              <Link
+              <div
                 key={m.code}
                 className={css`
                   padding: 3px 20px;
@@ -86,15 +86,19 @@ export const Dashboard = props => {
                   margin: 5px 10px;
                   font-size: 23px;
                   white-space: nowrap;
+                  cursor: pointer;
                   &:hover {
                     background: ${colors.lightFont};
                     color: ${colors.primary};
                   }
                 `}
-                to={`/mission/${m.code}`}
+                onClick={() => {
+                  setSidebarOpen(false)
+                  navigate(`/mission/${m.code}`)
+                }}
               >
                 {m.title}
-              </Link>
+              </div>
             ))}
           </div>
         </div>

@@ -1,32 +1,31 @@
 import React from "react"
 import { AtomSpinner } from "./atom"
 
-export const Loading = ({ message, style }) => {
+export const Loading = ({ message, style, ...props }) => {
   const [paint, setPaint] = React.useState(false)
 
   React.useEffect(() => {
-    let timeout
-    if (!paint) {
-      timeout = setTimeout(setPaint, 500, true)
-    }
+    const timeoutId = setTimeout(() => setPaint(true), 100)
 
-    return () => {
-      clearTimeout(timeout)
-    }
-  }, [paint])
+    return () => clearTimeout(timeoutId)
+  }, [])
+
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        width: "100%",
-        ...style,
-      }}
-    >
-      <h3>{message}</h3>
-      <AtomSpinner />
-    </div>
+    paint && (
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          width: "100%",
+          ...style,
+        }}
+        {...props}
+      >
+        <h3>{message}</h3>
+        <AtomSpinner />
+      </div>
+    )
   )
 }

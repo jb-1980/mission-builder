@@ -1,42 +1,39 @@
 const mxml = require("./elms-xml-files")
 
-const getManyExercises = async (kapi, exercises, accumulator = []) => {
-  // Setting up strings to test length against. 1500 is kind of arbitrary, but
-  // it should give room for other things like token and secret
-  let _exercises = []
-  let tmpString = ""
-  let exercisesString = ""
-  // Copy of exercises, which will shift off the exercises we use so we have a
-  // smaller list for the next fetch
-  let unusedExercises = [...exercises]
+const getVideoIds = async (kapi, videos) =>
+  Promise.all(videos.map(name => kapi.videos(name))).then(data =>
+    data.reduce((ids, vid) => {
+      ids[vid.readable_id] = vid.youtube_id
+      return ids
+    }, {})
+  )
 
-  for (var i = 0; i < exercises.length; i++) {
-    tmpString = `${exercisesString},${exercises[i]}`
-    if (tmpString.length < 1500) {
-      unusedExercises.shift()
-      _exercises.push(exercises[i])
-      exercisesString = tmpString
-    } else {
-      // string has reached its max length, let's fetch some data
-      return await kapi.userExercises(_exercises).then(res => {
-        _accumulator = res.map(e => e.exercise_model)
-        return getManyExercises(kapi, unusedExercises, [
-          ...accumulator,
-          ..._accumulator,
-        ])
-      })
-    }
-  }
+const getManyExercises = async (kapi, exercises) =>
+  Promise.all([
+    ...exercises.map(name => kapi.exercisesExerciseName(name)),
+    ...exercises.map(name => kapi.exercisesExerciseVideos(name)),
+  ]).then(data => {
+    let { videoMap, skills } = data.reduce(
+      (map, datum) => {
+        if (Array.isArray(datum)) {
+          datum.forEach(video => {
+            map.videoMap[video.readable_id] = video.youtube_id
+          })
+        } else {
+          map.skills.push(datum)
+        }
+        return map
+      },
+      { videoMap: {}, skills: [] }
+    )
 
-  // not enough exercises to exceed the 2048 limit
-  const res = await kapi
-    .userExercises(exercises)
-    .then(res => res.map(e => e.exercise_model))
-
-  return [...accumulator, ...res]
-}
-
-const KHAN_URL = "https://www.khanacademy.org/"
+    return skills.map(skill => ({
+      ...skill,
+      related_videos: skill.related_video_readable_ids.map(
+        vid => videoMap[vid]
+      ),
+    }))
+  })
 
 exports.make_backup = async (kapi, mission) => {
   //     //
@@ -66,15 +63,24 @@ exports.make_backup = async (kapi, mission) => {
   //     // }
   //     // So every topic should become a section, and each task should become a page
   //     //
-  const fileName = `${mission.title}-export.mbz`
 
   // parse mission data to build sections and activities:
-  const skills = mission.topics.reduce((acc, topic) => {
-    topic.tasks.forEach(task => acc.push(task.name))
-    return acc
-  }, [])
+  const { exercises, videos } = mission.topics.reduce(
+    (acc, topic) => {
+      topic.tasks.forEach(task => {
+        if (task.kind === "Exercise") {
+          acc.exercises.push(task.name)
+        } else if (task.kind === "Video") {
+          acc.videos.push(task.name)
+        }
+      })
+      return acc
+    },
+    { exercises: [], videos: [] }
+  )
 
-  const pageData = await getManyExercises(kapi, skills)
+  const videoIds = await getVideoIds(kapi, videos)
+  const pageData = await getManyExercises(kapi, exercises)
   const pageDataRef = pageData.reduce((acc, page) => {
     acc[page.name] = page
     return acc
@@ -106,7 +112,7 @@ exports.make_backup = async (kapi, mission) => {
 
     topic.tasks.forEach(task => {
       let taskData = pageDataRef[task.name] || {}
-
+      let { kind } = task
       mission_backup.activities.push({
         modid,
         sectionid: sect,
@@ -123,8 +129,11 @@ exports.make_backup = async (kapi, mission) => {
         gradeitem,
         idnumber: task.name,
         sectionid: sect,
-        ka_url: task.url ? KHAN_URL + task.url : taskData.ka_url,
-        related_videos: taskData.related_videos || [],
+        url: task.url,
+        related_videos:
+          kind === "Video"
+            ? [videoIds[task.name]]
+            : taskData.related_videos || [],
         kind: task.kind,
         ...taskData,
       })
