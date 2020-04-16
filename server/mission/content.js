@@ -47,7 +47,7 @@ const createVideoString = (videos, standAlone) => {
     id="kaskill-ka-player"
     style="width:853px;height:480px;border:none;background-color:ghostwhite;margin:auto;"
     scrolling="no"
-    src="http://www.khanacademy.org/embed_video?v=${videos[0]}"
+    src="${baseUrl}${videos[0]}"
   ></iframe>
 </div>
 <div>
@@ -63,13 +63,13 @@ ${videos.map((v, i) => createVideoButton(i + 1, v)).join("")}
   id="kaskill-ka-player"
   style="width:853px;height:480px;border:none;background-color:ghostwhite;margin:auto;"
   scrolling="no"
-  src="http://www.khanacademy.org/embed_video?v=${videos[0]}"
+  src="${baseUrl}${videos[0]}"
 ></iframe>
 </div>`
 }
 
-const createSkillString = content => {
-  const videos = content.related_videos.map(v => v.youtube_id)
+const createSkillString = (content) => {
+  const videos = content.related_videos.map((v) => v.youtube_id)
   const videosDescription = content.image_url
     ? videos.length > 0
       ? `<p>
@@ -109,7 +109,7 @@ const createSkillString = content => {
 </div>`
 }
 
-const createUnitTestString = content => `
+const createUnitTestString = (content) => `
 <h1 style="text-align: center;">${content.title}</h1>
 <h2>
   Before taking the unit test, please make sure that you have completed all of
@@ -142,7 +142,7 @@ const createUnitTestString = content => `
 </div>
 `
 
-const createTopicQuizString = content => `
+const createTopicQuizString = (content) => `
 <h1 style="text-align: center;">${content.title}</h1>
 <h2>
   This quiz will test your mastery of the topic's skills. If you don't get a
@@ -174,7 +174,7 @@ const createTopicQuizString = content => `
 </div>
 `
 
-const createArticleString = content => `
+const createArticleString = (content) => `
 <div style="text-align:center">
   <h2>
     You will now read an article on Khan Academy.
@@ -188,7 +188,7 @@ const createArticleString = content => `
 </div>
 `
 
-const createChallengeString = content => `
+const createChallengeString = (content) => `
 <div style="text-align:center">
   <h2>
     Now you will complete a coding challenge on Khan Academy. Just click the button
@@ -202,7 +202,7 @@ const createChallengeString = content => `
 </div>
 `
 
-const createProjectString = content => `
+const createProjectString = (content) => `
 <div style="text-align:center">
   <h2>
     Now you will complete a coding Project on Khan Academy. Just click the button
@@ -216,7 +216,7 @@ const createProjectString = content => `
 </div>
 `
 
-const createTalkthroughString = content => `
+const createTalkthroughString = (content) => `
 <div style="text-align:center">
   <h2>Please click the button to complete the talkthrough activity on Khan Academy.</h2>
   ${buttonLink(content.url, `Talkthrough -- ${content.title}`)}
@@ -227,7 +227,7 @@ const createTalkthroughString = content => `
 </div>
 `
 
-const createContentString = content => {
+const createContentString = (content) => {
   switch (content.kind) {
     case "Article":
       return createArticleString(content)
