@@ -21,7 +21,6 @@ router.get("/user/verify", async (req, res) => {
       authTokens.secret
     )
     try {
-      console.log("here")
       const user = await kapi.fetchResource("/api/internal/user", true)
 
       res.status(200).json(user)
@@ -60,8 +59,8 @@ router.get("/get/mission/:missionSlug", async (req, res) => {
 
 router.get("/get/data", async (req, res, next) => {
   const data = await readAsync("data_cache.json", { encoding: "utf8" })
-    .then(jsonString => JSON.parse(jsonString))
-    .catch(error => next(error))
+    .then((jsonString) => JSON.parse(jsonString))
+    .catch((error) => next(error))
   res.status(200).json(data)
 })
 
@@ -163,7 +162,7 @@ router.get("/get/mission_export/:code", async (req, res) => {
 
     const zip = Archiver("zip")
     zip.pipe(res)
-    xml_files.forEach(f => zip.append(f.xml, { name: f.name }))
+    xml_files.forEach((f) => zip.append(f.xml, { name: f.name }))
     zip.finalize()
     res.writeHead(200, {
       "Content-Type": "application/zip",

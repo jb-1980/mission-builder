@@ -12,6 +12,7 @@ const buttonLink = (url, label) => `
       font-size:20px"
     rel="noreferrer noopener"
     href="${KHAN_URL + url}"
+    target="_blank"
   >
     ${label}
   </a>
@@ -69,7 +70,7 @@ ${videos.map((v, i) => createVideoButton(i + 1, v)).join("")}
 }
 
 const createSkillString = (content) => {
-  const videos = content.related_videos.map((v) => v.youtube_id)
+  const videos = content.related_videos
   const videosDescription = content.image_url
     ? videos.length > 0
       ? `<p>

@@ -51,7 +51,7 @@ exports.scalesxml = () => {
   return { name: "scales.xml", xml }
 }
 
-exports.moodle_backupxml = params => {
+exports.moodle_backupxml = (params) => {
   const xml = jsonxml(
     [
       {
@@ -97,7 +97,7 @@ exports.moodle_backupxml = params => {
                 children: [
                   {
                     name: "activities",
-                    children: params.activities.map(a => ({
+                    children: params.activities.map((a) => ({
                       name: "activity",
                       children: [
                         { moduleid: a.modid },
@@ -110,7 +110,7 @@ exports.moodle_backupxml = params => {
                   },
                   {
                     name: "sections",
-                    children: params.sections.map(s => ({
+                    children: params.sections.map((s) => ({
                       name: "section",
                       children: [
                         { sectionid: s.id },
@@ -148,8 +148,7 @@ exports.moodle_backupxml = params => {
   return { name: "moodle_backup.xml", xml }
 }
 
-exports.create_page_activity = page => {
-  console.log({ page })
+exports.create_page_activity = (page) => {
   const content = createContentString(page)
   const page_xml = jsonxml(
     [
@@ -315,7 +314,7 @@ exports.create_page_activity = page => {
   ]
 }
 
-exports.makecourse = course => {
+exports.makecourse = (course) => {
   const course_xml = jsonxml(
     [
       {
@@ -379,7 +378,7 @@ exports.makecourse = course => {
   ]
 }
 
-exports.makesection = section => {
+exports.makesection = (section) => {
   const xml = jsonxml(
     [
       {
