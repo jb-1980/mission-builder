@@ -34,7 +34,7 @@ const cleanMission = (dirtyMission) => ({
 })
 
 export const Workspace = ({ mission, dispatch }) => {
-  const [open, setOpen] = React.useState(true)
+  const [open, setOpen] = React.useState(false)
   const { loading, updating, error, updateData } = useData()
   const { user } = useUser()
   const [saveMission, { loading: isSaving }] = useSaveMission({
