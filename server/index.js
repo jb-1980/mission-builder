@@ -26,7 +26,7 @@ app.use(cookieParser())
 app.set("views", path.join(__dirname, "views"))
 app.set("view engine", "pug")
 
-logger.token("body", req => JSON.stringify(req.body, null, 2))
+logger.token("body", (req) => JSON.stringify(req.body, null, 2))
 const loggerFormat =
   process.env.NODE_ENV === "production"
     ? "short"
@@ -96,4 +96,4 @@ server.applyMiddleware({ app })
 
 const port = process.env.PORT || 4000
 app.set("port", port)
-app.listen(port, () => console.log(`🚀  Server ready at ${port}`))
+app.listen(port, () => console.info(`🚀  Server ready at ${port}`))

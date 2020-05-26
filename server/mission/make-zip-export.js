@@ -1,7 +1,7 @@
 const mxml = require("./elms-xml-files")
 
 const getVideoIds = async (kapi, videos) =>
-  Promise.all(videos.map(name => kapi.videos(name))).then(data =>
+  Promise.all(videos.map((name) => kapi.videos(name))).then((data) =>
     data.reduce((ids, vid) => {
       ids[vid.readable_id] = vid.youtube_id
       return ids
@@ -10,13 +10,13 @@ const getVideoIds = async (kapi, videos) =>
 
 const getManyExercises = async (kapi, exercises) =>
   Promise.all([
-    ...exercises.map(name => kapi.exercisesExerciseName(name)),
-    ...exercises.map(name => kapi.exercisesExerciseVideos(name)),
-  ]).then(data => {
+    ...exercises.map((name) => kapi.exercisesExerciseName(name)),
+    ...exercises.map((name) => kapi.exercisesExerciseVideos(name)),
+  ]).then((data) => {
     let { videoMap, skills } = data.reduce(
       (map, datum) => {
         if (Array.isArray(datum)) {
-          datum.forEach(video => {
+          datum.forEach((video) => {
             map.videoMap[video.readable_id] = video.youtube_id
           })
         } else {
@@ -27,15 +27,15 @@ const getManyExercises = async (kapi, exercises) =>
       { videoMap: {}, skills: [] }
     )
 
-    return skills.map(skill => ({
+    return skills.map((skill) => ({
       ...skill,
       related_videos: skill.related_video_readable_ids.map(
-        vid => videoMap[vid]
+        (vid) => videoMap[vid]
       ),
     }))
   })
 
-exports.make_backup = async (kapi, mission) => {
+exports.make_backup = async (kapi, mission, condensed = false) => {
   //     //
   //     // mission object should look like {
   //     //   "_id" : ObjectId("56fd84b01c1601ea17be56a9"),
@@ -67,7 +67,7 @@ exports.make_backup = async (kapi, mission) => {
   // parse mission data to build sections and activities:
   const { exercises, videos } = mission.topics.reduce(
     (acc, topic) => {
-      topic.tasks.forEach(task => {
+      topic.tasks.forEach((task) => {
         if (task.kind === "Exercise") {
           acc.exercises.push(task.name)
         } else if (task.kind === "Video") {
@@ -107,14 +107,13 @@ exports.make_backup = async (kapi, mission) => {
     sections: [],
   }
 
-  mission.topics.forEach(topic => {
+  mission.topics.forEach((topic) => {
     sect += 1
 
-    topic.tasks.forEach(task => {
+    topic.tasks.forEach((task) => {
       let taskData = pageDataRef[task.name] || {}
       let { kind } = task
       mission_backup.activities.push({
-        modid,
         sectionid: sect,
         title: task.title,
         exportid: task.exportid || task.name,
@@ -128,7 +127,6 @@ exports.make_backup = async (kapi, mission) => {
         answerid3,
         gradeitem,
         idnumber: task.name,
-        sectionid: sect,
         url: task.url,
         related_videos:
           kind === "Video"
@@ -172,7 +170,7 @@ exports.make_backup = async (kapi, mission) => {
     mxml.scalesxml(),
     mxml.moodle_backupxml(mission_backup),
     ...mission_backup.activities.reduce(
-      (acc, a) => [...acc, ...mxml.create_page_activity(a)],
+      (acc, a) => [...acc, ...mxml.create_page_activity(a, condensed)],
       []
     ),
     ...mission_backup.sections.reduce(

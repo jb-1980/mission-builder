@@ -3,12 +3,11 @@ import { useDrag, useDrop } from "react-dnd"
 import { FaTimesCircle } from "react-icons/fa"
 
 import { Editable } from "./editable-input"
-import { TaskSelector } from "./task-selector"
 
 export const Topics = ({ topics, dispatch }) => {
   return (
     <div className="topics">
-      {topics.map(topic => (
+      {topics.map((topic) => (
         <Topic topic={topic} key={topic.id} dispatch={dispatch} />
       ))}
     </div>
@@ -44,13 +43,10 @@ const Topic = ({ topic, dispatch }) => {
 
           <div className="topic-delete">
             <FaTimesCircle
-              onClick={e => deleteTopic(e, topic.id)}
+              onClick={(e) => deleteTopic(e, topic.id)}
               className="delete-button"
             />
           </div>
-        </div>
-        <div className="topic-add-task">
-          <TaskSelector topicId={topic.id} dispatch={dispatch} />
         </div>
       </div>
       <Tasks topicId={topic.id} tasks={topic.tasks} dispatch={dispatch} />
@@ -61,7 +57,7 @@ const Topic = ({ topic, dispatch }) => {
 const TopicTitle = ({ title, id, dispatch }) => {
   const [isEditing, setIsEditing] = React.useState(false)
 
-  const onEdit = title => {
+  const onEdit = (title) => {
     dispatch({
       type: "UPDATE_TOPIC_TITLE",
       id,
@@ -82,7 +78,7 @@ const TopicTitle = ({ title, id, dispatch }) => {
 
 export const Tasks = ({ tasks, topicId, dispatch }) => (
   <ul className="tasks">
-    {tasks.map(task => (
+    {tasks.map((task) => (
       <Task
         key={task.id}
         className="task"
@@ -112,10 +108,10 @@ export const Task = ({ task, topicId, dispatch, ...props }) => {
   })
   const [{ isDragging }, drag] = useDrag({
     item: { type: "task", task },
-    isDragging: monitor => {
+    isDragging: (monitor) => {
       return task.id === monitor.getItem().task.id
     },
-    collect: monitor => ({
+    collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
   })

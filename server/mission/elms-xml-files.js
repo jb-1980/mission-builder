@@ -148,8 +148,8 @@ exports.moodle_backupxml = (params) => {
   return { name: "moodle_backup.xml", xml }
 }
 
-exports.create_page_activity = (page) => {
-  const content = createContentString(page)
+exports.create_page_activity = (page, condensed = false) => {
+  const content = createContentString(page, condensed)
   const page_xml = jsonxml(
     [
       {

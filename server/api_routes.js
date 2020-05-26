@@ -148,6 +148,7 @@ router.get("/get/mission_export/:code", async (req, res) => {
     const authTokens = jwt.verify(tokens, process.env.JWT_SECRET)
 
     const { code } = req.params
+    const { condensed } = req.query
     const mission = await Mission.findOne({ code })
 
     // This is specific to my app. If extending for your own use you will
@@ -158,7 +159,7 @@ router.get("/get/mission_export/:code", async (req, res) => {
       authTokens.token,
       authTokens.secret
     )
-    const xml_files = await make_backup(kapi, mission)
+    const xml_files = await make_backup(kapi, mission, condensed)
 
     const zip = Archiver("zip")
     zip.pipe(res)

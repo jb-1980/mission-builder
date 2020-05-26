@@ -69,7 +69,7 @@ ${videos.map((v, i) => createVideoButton(i + 1, v)).join("")}
 </div>`
 }
 
-const createSkillString = (content) => {
+const createCondensedSkillString = (content) => {
   const videos = content.related_videos
   const videosDescription = content.image_url
     ? videos.length > 0
@@ -109,6 +109,19 @@ const createSkillString = (content) => {
   </div>
 </div>`
 }
+
+const createSkillString = (content) => `
+<div style="text-align:center">
+  <h2>
+    Now you will complete an exercise on Khan Academy to practice your skills.
+  </h2>
+  ${buttonLink(content.url, `Exercise -- ${content.title}`)}
+  <h4 style="color:red">
+    ** Rember to log into your Khan Academy account before doing the activity,
+       or you won't get credit **
+  </h4>
+</div>
+`
 
 const createUnitTestString = (content) => `
 <h1 style="text-align: center;">${content.title}</h1>
@@ -228,7 +241,7 @@ const createTalkthroughString = (content) => `
 </div>
 `
 
-const createContentString = (content) => {
+const createContentString = (content, condensed = false) => {
   switch (content.kind) {
     case "Article":
       return createArticleString(content)
@@ -237,7 +250,9 @@ const createContentString = (content) => {
       return createChallengeString(content)
 
     case "Exercise":
-      return createSkillString(content)
+      return condensed
+        ? createCondensedSkillString(content)
+        : createSkillString(content)
 
     case "Project":
       return createProjectString(content)
