@@ -23,11 +23,12 @@ const inverseBtnPrimaryOutline = css`
     background: ${colors.lightFont};
   }
 `
-export const Dashboard = props => {
+export const Dashboard = (props) => {
   const [sidebarOpen, setSidebarOpen] = React.useState(false)
   const [cloneModalOpen, setCloneModalOpen] = React.useState(false)
 
   const { user } = useUser()
+  console.log({ user })
   const { data, error, loading, refetch } = useMissions({
     variables: { kaid: user.kaid },
   })
@@ -75,7 +76,7 @@ export const Dashboard = props => {
                 Clone Mission
               </button>
             </div>
-            {missions.map(m => (
+            {missions.map((m) => (
               <div
                 key={m.code}
                 className={css`
@@ -168,7 +169,7 @@ const Home = ({ editMissionHandler }) => (
   </div>
 )
 
-const CloneModal = props => {
+const CloneModal = (props) => {
   const [code, setCode] = React.useState("")
 
   return (
@@ -220,7 +221,7 @@ const CloneModal = props => {
           `}
           type="text"
           value={code}
-          onChange={e => setCode(e.target.value)}
+          onChange={(e) => setCode(e.target.value)}
         />
         <div
           className={css`

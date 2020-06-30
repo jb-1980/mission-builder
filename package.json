@@ -14,7 +14,7 @@
     "graphql": "^14.5.8",
     "jsontoxml": "^1.0.1",
     "jsonwebtoken": "^8.5.1",
-    "khan-api-wrapper": "^1.1.0",
+    "khan-graphql": "^1.1.1",
     "mongoose": "^5.7.6",
     "morgan": "^1.9.1",
     "react": "^16.11.0",

@@ -1,41 +1,7 @@
 const mxml = require("./elms-xml-files")
+const { VIDEOS } = require("./videos")
 
-const getVideoIds = async (kapi, videos) =>
-  Promise.all(videos.map((name) => kapi.videos(name))).then((data) =>
-    data.reduce((ids, vid) => {
-      ids[vid.readable_id] = vid.youtube_id
-      return ids
-    }, {})
-  )
-
-const getManyExercises = async (kapi, exercises) =>
-  Promise.all([
-    ...exercises.map((name) => kapi.exercisesExerciseName(name)),
-    ...exercises.map((name) => kapi.exercisesExerciseVideos(name)),
-  ]).then((data) => {
-    let { videoMap, skills } = data.reduce(
-      (map, datum) => {
-        if (Array.isArray(datum)) {
-          datum.forEach((video) => {
-            map.videoMap[video.readable_id] = video.youtube_id
-          })
-        } else {
-          map.skills.push(datum)
-        }
-        return map
-      },
-      { videoMap: {}, skills: [] }
-    )
-
-    return skills.map((skill) => ({
-      ...skill,
-      related_videos: skill.related_video_readable_ids.map(
-        (vid) => videoMap[vid]
-      ),
-    }))
-  })
-
-exports.make_backup = async (kapi, mission, condensed = false) => {
+exports.make_backup = async (mission, condensed = false) => {
   //     //
   //     // mission object should look like {
   //     //   "_id" : ObjectId("56fd84b01c1601ea17be56a9"),
@@ -65,25 +31,10 @@ exports.make_backup = async (kapi, mission, condensed = false) => {
   //     //
 
   // parse mission data to build sections and activities:
-  const { exercises, videos } = mission.topics.reduce(
-    (acc, topic) => {
-      topic.tasks.forEach((task) => {
-        if (task.kind === "Exercise") {
-          acc.exercises.push(task.name)
-        } else if (task.kind === "Video") {
-          acc.videos.push(task.name)
-        }
-      })
-      return acc
-    },
-    { exercises: [], videos: [] }
-  )
 
-  const videoIds = await getVideoIds(kapi, videos)
-  const pageData = await getManyExercises(kapi, exercises)
-  const pageDataRef = pageData.reduce((acc, page) => {
-    acc[page.name] = page
-    return acc
+  const videoIds = VIDEOS.reduce((dict, v) => {
+    dict[v.title] = v.youtubeid
+    return dict
   }, {})
 
   let sect = 1
@@ -111,7 +62,6 @@ exports.make_backup = async (kapi, mission, condensed = false) => {
     sect += 1
 
     topic.tasks.forEach((task) => {
-      let taskData = pageDataRef[task.name] || {}
       let { kind } = task
       mission_backup.activities.push({
         sectionid: sect,
@@ -128,12 +78,8 @@ exports.make_backup = async (kapi, mission, condensed = false) => {
         gradeitem,
         idnumber: task.name,
         url: task.url,
-        related_videos:
-          kind === "Video"
-            ? [videoIds[task.name]]
-            : taskData.related_videos || [],
+        related_videos: kind === "Video" ? [videoIds[task.title]] : [],
         kind: task.kind,
-        ...taskData,
       })
       lessonid += 1
       modid += 1

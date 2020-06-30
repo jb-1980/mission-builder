@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken")
 const { ApolloServer } = require("apollo-server-express")
 const mongoose = require("mongoose")
 const logger = require("morgan")
-const { KhanOauth } = require("khan-api-wrapper")
+const { KhanApi } = require("khan-graphql")
 const apiRoutes = require("./api_routes")
 const { typeDefs } = require("./schema")
 const { resolvers } = require("./resolvers")
@@ -35,42 +35,37 @@ app.use(logger(loggerFormat))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
-const kauth = new KhanOauth(
-  process.env.KHAN_CONSUMER_KEY,
-  process.env.KHAN_CONSUMER_SECRET
-)
+app.post("/login", async (req, res) => {
+  const { identifier, password } = req.body
 
-app.get("/login", (req, res) => {
-  // Note that this callbackUrl corresponds to a route that will be defined
-  // later, and that will handle setting the fresh tokens into the session
+  const kapi = new KhanApi()
+  const isLoggedIn = await kapi
+    .authenticate(identifier, password)
+    .catch((err) => {
+      res.status(401).json({ error: "invalid username or password" })
+      return false
+    })
+  if (isLoggedIn) {
+    const tokens = jwt.sign({ identifier, password }, process.env.JWT_SECRET, {
+      expiresIn: 1209600, // two weeks
+    })
+    const user = await kapi
+      .getFullUserProfile()
+      .then(({ data }) => data)
+      .catch((err) => {
+        console.error(err)
+        return res.sendStatus(500)
+      })
 
-  const callBackUrl = `${req.protocol}://${req.get("host")}/authenticate_khan`
-  kauth.authorize(res, callBackUrl)
+    let _user = user?.data?.user || {}
+    res.cookie("tokens", tokens, { maxAge: 120960000 })
+    res.send(200).json(_user)
+  }
 })
 
-app.get("/logout", (req, res) => {
+app.post("/logout", (req, res) => {
   res.clearCookie("tokens")
   return res.sendStatus(200)
-})
-
-app.get("/authenticate_khan", async (req, res) => {
-  // This is the route that Khan Academy will return to after the user
-  // has given permission in the browser. It is the callbackUrl defined in the
-  // login route.
-  const { oauth_token_secret, oauth_verifier, oauth_token } = req.query
-
-  const [token, secret] = await kauth.getAccessTokens(
-    oauth_token,
-    oauth_token_secret,
-    oauth_verifier
-  )
-
-  const tokens = jwt.sign({ token, secret }, process.env.JWT_SECRET, {
-    expiresIn: 1209600, // two weeks
-  })
-
-  res.cookie("tokens", tokens, { maxAge: 120960000 })
-  res.redirect("/")
 })
 
 app.use("/api", apiRoutes)
@@ -84,11 +79,11 @@ if (process.env.NODE_ENV === "production") {
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: async ({ req }) => {
+  context: ({ req }) => {
     const { tokens } = req.cookies
     if (!tokens) return { token: null, secret: null }
 
-    return await jwt.verify(tokens, process.env.JWT_SECRET)
+    return jwt.verify(tokens, process.env.JWT_SECRET)
   },
 })
 

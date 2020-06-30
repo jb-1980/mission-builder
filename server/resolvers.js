@@ -1,4 +1,3 @@
-const { KhanAPIWrapper } = require("khan-api-wrapper")
 const { Mission } = require("./models")
 
 const idGenerator = (size = 8) => {
@@ -11,15 +10,6 @@ const idGenerator = (size = 8) => {
 
 exports.resolvers = {
   Query: {
-    user: async (parent, {}, { token, secret }) => {
-      const kapi = new KhanAPIWrapper(
-        KHAN_CONSUMER_KEY,
-        KHAN_CONSUMER_SECRET,
-        token,
-        secret
-      )
-      return await kapi.user()
-    },
     missions: async (parent, { kaid }) => await Mission.find({ owner: kaid }),
     mission: async (parent, { code }) => await Mission.findOne({ code }),
   },

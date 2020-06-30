@@ -1,5 +1,5 @@
 const KHAN_URL = "https://www.khanacademy.org"
-const baseUrl = `${KHAN_URL}/embed_video?v=`
+const EMBED_VIDEO_URL = `${KHAN_URL}/embed_video?v=`
 
 const buttonLink = (url, label) => `
   <a
@@ -25,7 +25,7 @@ const loginWarning = () => `<h4 style="color:red">
 
 const createVideoButton = (i, youtubeId) => `
   <button
-    onclick="changeVideo('${baseUrl + youtubeId}')"
+    onclick="changeVideo('${EMBED_VIDEO_URL + youtubeId}')"
     style="
       background: #089de3;
       border: thin solid #089de3;
@@ -48,7 +48,7 @@ const createVideoString = (videos, standAlone) => {
     id="kaskill-ka-player"
     style="width:853px;height:480px;border:none;background-color:ghostwhite;margin:auto;"
     scrolling="no"
-    src="${baseUrl}${videos[0]}"
+    src="${EMBED_VIDEO_URL}${videos[0]}"
   ></iframe>
 </div>
 <div>
@@ -64,7 +64,7 @@ ${videos.map((v, i) => createVideoButton(i + 1, v)).join("")}
   id="kaskill-ka-player"
   style="width:853px;height:480px;border:none;background-color:ghostwhite;margin:auto;"
   scrolling="no"
-  src="${baseUrl}${videos[0]}"
+  src="${EMBED_VIDEO_URL}${videos[0]}"
 ></iframe>
 </div>`
 }
@@ -98,7 +98,7 @@ const createCondensedSkillString = (content) => {
   ${
     content.image_url
       ? `<div style="text-align: center;">
-    <img src="${content.image_url}" alt="${content.display_name}"/>
+    <img src="${content.image_url}" alt="${content.display_name} example problem"/>
   </div>`
       : ""
   }

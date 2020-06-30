@@ -112,6 +112,12 @@ export const Workspace = ({ mission, dispatch }) => {
               ) : (
                 <>
                   <ButtonPrimary
+                    style={{ margin: "3px 3px 0 0" }}
+                    onClick={() => dispatch({ type: "CREATE_TOPIC" })}
+                  >
+                    Add Topic
+                  </ButtonPrimary>
+                  <ButtonPrimary
                     style={{ margin: "3px 0 0 3px" }}
                     onClick={() => updateData()}
                   >
